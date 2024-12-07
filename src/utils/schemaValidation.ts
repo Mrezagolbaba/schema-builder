@@ -44,7 +44,7 @@ export const validateInput = (input: Input): ValidationError[] => {
 
 export const validateRunnableData = (runnable: Runnable): ValidationError[] => {
   const errors: ValidationError[] = [];
- 
+
   // Required fields validation
   if (!runnable.type || !runnable.path || !Array.isArray(runnable.inputs)) {
     errors.push(
@@ -54,30 +54,30 @@ export const validateRunnableData = (runnable: Runnable): ValidationError[] => {
     );
     return errors;
   }
- 
+
   // Path validation
   if (typeof runnable.path !== 'string' || runnable.path.trim() === '') {
-    errors.push({ 
+    errors.push({
       path: 'runnable.path',
-      message: 'Path must be a valid non-empty string' 
+      message: 'Path must be a valid non-empty string'
     });
-   } else if (!runnable.path.startsWith('/')) {
+  } else if (!runnable.path.startsWith('/')) {
     errors.push({
       path: 'runnable.path',
       message: 'Path must start with /'
     });
-   } else if (/\s/.test(runnable.path)) {
+  } else if (/\s/.test(runnable.path)) {
     errors.push({
-      path: 'runnable.path', 
+      path: 'runnable.path',
       message: 'Path cannot contain spaces'
     });
-   } else if (!/^[a-zA-Z0-9/\-_]+$/.test(runnable.path)) {
+  } else if (!/^[a-zA-Z0-9/\-_]+$/.test(runnable.path)) {
     errors.push({
       path: 'runnable.path',
       message: 'Path can only contain letters, numbers, hyphens, underscores and forward slashes'
     });
-   }
- 
+  }
+
   // Unique input names validation
   const inputNames = new Set<string>();
   runnable.inputs.forEach((input, index) => {
@@ -96,17 +96,17 @@ export const validateRunnableData = (runnable: Runnable): ValidationError[] => {
       ...(!Array.isArray(runnable.inputs) ? [{ path: 'runnable.inputs', message: 'Inputs must be an array' }] : [])
     );
     return errors;
-   }
-   
-   // Validate required fields have non-empty values
-   runnable.inputs.forEach((input, index) => {
+  }
+
+  // Validate required fields have non-empty values
+  runnable.inputs.forEach((input, index) => {
     if (input.required && (input.value === undefined || input.value === null || input.value === '')) {
       errors.push({
         path: `runnable.inputs[${index}].value`,
         message: `${input.label || input.name} is required`
       });
     }
-   });
+  });
   // Individual input validation
   runnable.inputs.forEach((input, index) => {
     if (!input.name?.trim()) {
@@ -121,14 +121,14 @@ export const validateRunnableData = (runnable: Runnable): ValidationError[] => {
       message: error.message
     })));
   });
- 
+
   return errors;
- };
- const validateSchemaConstraints = (runnable: Runnable): ValidationError[] => {
+};
+const validateSchemaConstraints = (runnable: Runnable): ValidationError[] => {
   const errors: ValidationError[] = [];
- 
+
   // Empty runnable check not needed here since it's handled at schema level
- 
+
   // Check input count constraints
   if (!runnable.inputs || runnable.inputs.length === 0) {
     errors.push({
@@ -136,16 +136,16 @@ export const validateRunnableData = (runnable: Runnable): ValidationError[] => {
       message: 'At least one input is required per runnable'
     });
   }
- 
+
   if (runnable.inputs && runnable.inputs.length > 20) {
     errors.push({
       path: 'runnable.inputs',
       message: 'Maximum 20 inputs allowed per runnable'
     });
   }
- 
+
   return errors;
- };
+};
 
 export const validateSchema = (schema: Schema): ValidationError[] => {
   const errors: ValidationError[] = [];
@@ -159,17 +159,17 @@ export const validateSchema = (schema: Schema): ValidationError[] => {
     errors.push({ path: 'schema.runnables', message: 'At least one runnable is required' });
   }
   if (!schema.runnables || schema.runnables.length === 0) {
-    errors.push({ 
-      path: 'schema.runnables', 
-      message: 'At least one runnable is required' 
+    errors.push({
+      path: 'schema.runnables',
+      message: 'At least one runnable is required'
     });
     return errors;
   }
- 
+
   schema.runnables.forEach((runnable, index) => {
     const constraintErrors = validateSchemaConstraints(runnable);
     const runnableErrors = validateRunnableData(runnable);
-    
+
     errors.push(
       ...constraintErrors.map(error => ({
         path: `schema.runnables[${index}].${error.path}`,

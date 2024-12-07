@@ -1,17 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { SchemaPreview } from '../../components/SchemaPreview';
 import { useSchemaStore } from '../../store/schemaStore';
 import { ChakraProvider } from '@chakra-ui/react';
 import '@testing-library/jest-dom';
 import React from 'react';
-
-// Create a complete mock store with proper history
-interface Runnable {
-  type: string;
-  path: string;
-  inputs: any[];
-}
+import { Runnable } from '../../types/schema';
 
 const createMockStore = () => ({
   schema: {
@@ -45,7 +39,7 @@ describe('SchemaPreview', () => {
 
   beforeEach(() => {
     mockStore = createMockStore();
-    (useSchemaStore as any).mockImplementation(() => mockStore);
+    (useSchemaStore as unknown as Mock).mockImplementation(() => mockStore);
   });
 
 

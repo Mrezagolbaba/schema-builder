@@ -34,10 +34,10 @@ interface Input {
   type: string;
   required: boolean;
   description?: string;
-  defaultValue?: any;
+  defaultValue?: string;
   order: number;
 }
-
+type RunnableFieldValue<T extends keyof Runnable> = Runnable[T];
 interface SchemaEditModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -60,7 +60,10 @@ const SchemaEditModal: React.FC<SchemaEditModalProps> = ({ isOpen, onClose, runn
     setErrors([]);
   }, [runnable]);
 
-  const handleInputChange = (field: keyof Runnable, value: any): void => {
+  const handleInputChange = <T extends keyof Runnable>(
+    field: T,
+    value: RunnableFieldValue<T>
+  ): void => {
     setEditedRunnable(prev => prev ? {
       ...prev,
       [field]: value
@@ -141,7 +144,7 @@ const SchemaEditModal: React.FC<SchemaEditModalProps> = ({ isOpen, onClose, runn
                   try {
                     setEditedRunnable(JSON.parse(e.target.value));
                   } catch (error) {
-                    // Allow invalid JSON while typing
+                    console.error(error);
                   }
                 }}
                 minH="200px"
@@ -271,7 +274,7 @@ const SchemaEditModal: React.FC<SchemaEditModalProps> = ({ isOpen, onClose, runn
                   <FormControl isInvalid={!!getFieldError(`inputs[${index}].defaultValue`)}>
                     <FormLabel>Default Value</FormLabel>
                     <Input
-                      value={input.defaultValue}
+                      value={typeof input.defaultValue === 'boolean' ? String(input.defaultValue) : input.defaultValue}
                       onChange={(e) => {
                         const newInputs = [...editedRunnable.inputs];
                         newInputs[index] = { ...input, defaultValue: e.target.value };
@@ -366,7 +369,7 @@ const SchemaEditModal: React.FC<SchemaEditModalProps> = ({ isOpen, onClose, runn
         </ModalBody>
         <ModalFooter>
           <HStack spacing={2}>
-            <Button leftIcon={<RiCloseLine />} variant="ghost" bg="white" onClick={onClose}>
+            <Button leftIcon={<RiCloseLine />} color="black" bg="white" onClick={onClose}>
               Cancel
             </Button>
             <Button

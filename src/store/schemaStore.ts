@@ -20,7 +20,7 @@ export interface SchemaStore {
   reorderRunnable: (fromIndex: number, toIndex: number) => void;
   undo: () => void;
   redo: () => void;
-  updateRunnable: (index: number, updatedRunnable: any) => void;
+  updateRunnable: (index: number, updatedRunnable: Runnable) => void;
 }
 
 const saveHistory = (state: History, newPresent: Schema): History => ({
@@ -188,7 +188,7 @@ export const useSchemaStore = create<SchemaStore>((set) => ({
       };
     }),
 
-  updateRunnable: (index: number, updatedRunnable: any) =>
+  updateRunnable: (index: number, updatedRunnable: Runnable) =>
     set((state) => {
       const newSchema = { ...state.schema };
       newSchema.runnables[index] = updatedRunnable;

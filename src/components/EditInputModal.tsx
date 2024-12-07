@@ -14,14 +14,15 @@ import {
   VStack,
   Select,
 } from '@chakra-ui/react';
+import { Input as SchemaInput } from '../types/schema';
 
 interface EditInputModalProps {
   isOpen: boolean;
   onClose: () => void;
-  input: any;
+  input:SchemaInput;
   runnableIndex: number;
   inputIndex: number;
-  onUpdate: (runnableIndex: number, inputIndex: number, updatedInput: any) => void;
+  onUpdate: (runnableIndex: number, inputIndex: number, updatedInput:SchemaInput ) => void;
 }
 export const EditInputModal: React.FC<EditInputModalProps> = ({
     isOpen,
@@ -39,7 +40,7 @@ export const EditInputModal: React.FC<EditInputModalProps> = ({
   
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { name, value } = e.target;
-      setFormData((prev: any) => ({
+      setFormData((prev) => ({
         ...prev,
         [name]: value,
       }));

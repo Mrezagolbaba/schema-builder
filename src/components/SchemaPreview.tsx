@@ -1,15 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Code, Heading, Button, useClipboard, VStack, HStack, Text, IconButton, ButtonGroup, useToast } from '@chakra-ui/react';
 import { useSchemaStore } from '../store/schemaStore';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DroppableProps, DraggableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { RiDraggable, RiDeleteBin7Line, RiEditLine } from "react-icons/ri";
 import { BiUndo, BiRedo } from "react-icons/bi";
 import { EditInputModal } from './EditInputModal';
 import SchemaEditModal from './SchemaEditModal';
-import { Runnable } from '../types/schema';
+import { Input, Runnable } from '../types/schema';
 import { validateSchema } from '../utils/schemaValidation';
-
-export const StrictModeDroppable = ({ children, ...props }: any) => {
+interface StrictModeDroppableProps extends Omit<DroppableProps, 'children'> {
+  children: (provided: DroppableProvided, snapshot: DroppableStateSnapshot) => React.ReactElement;
+}
+export const StrictModeDroppable: React.FC<StrictModeDroppableProps> = ({ children, ...props }) => {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export const StrictModeDroppable = ({ children, ...props }: any) => {
   }
 
   return <Droppable {...props}>{children}</Droppable>;
-};
+}
 
 export const SchemaPreview: React.FC = () => {
   const schema = useSchemaStore(state => state.schema);
@@ -41,7 +43,9 @@ export const SchemaPreview: React.FC = () => {
 
   const { hasCopied, onCopy } = useClipboard(JSON.stringify(schema, null, 2));
 
-  const [selectedInput, setSelectedInput] = useState<any>(null);
+  const [selectedInput, setSelectedInput] = useState(
+    {} as Input
+  );
   const [selectedIndices, setSelectedIndices] = useState<{ runnableIndex: number, inputIndex: number } | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const toast = useToast();
@@ -97,14 +101,14 @@ export const SchemaPreview: React.FC = () => {
             // Show validation errors
           }
         } catch (error) {
-          // Handle JSON parse error
+          console.error(error);
         }
       };
       reader.readAsText(file);
     }
   };
 
-  const handleInputUpdate = (runnableIndex: number, inputIndex: number, updatedInput: any) => {
+  const handleInputUpdate = (runnableIndex: number, inputIndex: number, updatedInput: Input) => {
     const updatedRunnable = { ...schema.runnables[runnableIndex] };
     if (updatedRunnable.inputs) {
       updatedRunnable.inputs[inputIndex] = updatedInput;
@@ -194,13 +198,12 @@ export const SchemaPreview: React.FC = () => {
 
       <DragDropContext onDragEnd={onDragEnd}>
         <StrictModeDroppable droppableId="runnables">
-          {(provided: any) => (
+          {(provided: DroppableProvided) => (
             <VStack
               spacing={2}
               {...provided.droppableProps}
               ref={provided.innerRef}
               align="stretch"
-
             >
               {schema.runnables.map((runnable, runnableIndex) => (
                 <Draggable
@@ -208,7 +211,7 @@ export const SchemaPreview: React.FC = () => {
                   draggableId={`runnable-${runnableIndex}`}
                   index={runnableIndex}
                 >
-                  {(provided) => (
+                  {(provided: DraggableProvided) => (
                     <Box
                       ref={provided.innerRef}
                       {...provided.draggableProps}
@@ -238,12 +241,12 @@ export const SchemaPreview: React.FC = () => {
                           onClick={() => handleRemoveRunnable(runnableIndex)}
                         />
                         <IconButton
-                         data-testid="edit-schema-button"
+                          data-testid="edit-schema-button"
                           size="sm"
                           icon={<RiEditLine />}
                           aria-label="Edit schema"
+                          color="blue.500"
                           onClick={() => {
-                            const runnable = schema.runnables[runnableIndex];
                             setEditingSchema(runnable);
                             setIsSchemaModalOpen(true);
                           }}
@@ -254,6 +257,7 @@ export const SchemaPreview: React.FC = () => {
                         whiteSpace="pre"
                         p={2}
                         mt={2}
+                        color={'blue.500'}
                         fontSize="sm"
                         bg="gray.100"
                         borderRadius="md"
@@ -274,7 +278,7 @@ export const SchemaPreview: React.FC = () => {
         isOpen={isEditModalOpen}
         onClose={() => {
           setIsEditModalOpen(false);
-          setSelectedInput(null);
+          setSelectedInput({} as Input);
           setSelectedIndices(null);
         }}
         input={selectedInput}

@@ -126,7 +126,7 @@ interface Input {
   order?: number;
   required: boolean;
   description?: string;
-  defaultValue?: any;
+  defaultValue?: string|number;
   options?: Option[];
   min?: number;
   max?: number;

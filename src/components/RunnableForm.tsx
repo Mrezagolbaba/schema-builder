@@ -10,9 +10,10 @@ import {
   HStack,
   IconButton,
   Text,
+  FormErrorMessage,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { Runnable, InputType } from '../types/schema';
+import { Runnable } from '../types/schema';
 import { useSchemaStore } from '../store/schemaStore';
 import { RiDeleteBin7Line } from "react-icons/ri";
 
@@ -24,11 +25,10 @@ interface RunnableFormProps {
 export const RunnableForm: React.FC<RunnableFormProps> = ({ runnableIndex, onClose }) => {
   const { addRunnable, removeRunnable, addInput, removeInput, schema } = useSchemaStore();
   const runnable = runnableIndex !== undefined ? schema.runnables[runnableIndex] : undefined;
-  
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm<Runnable>({
     defaultValues: runnable,
   });
@@ -69,9 +69,25 @@ export const RunnableForm: React.FC<RunnableFormProps> = ({ runnableIndex, onClo
           </Select>
         </FormControl>
 
-        <FormControl isRequired>
+        <FormControl isRequired isInvalid={!!errors.path}>
           <FormLabel>Path</FormLabel>
-          <Input {...register('path', { required: true })} data-testid="runnable-path-input" />
+          <Input
+            {...register('path', {
+              required: true,
+              pattern: {
+                value: /^[a-zA-Z0-9/\-_]+$/,
+                message: 'Path can only contain letters, numbers, /, -, and _'
+              },
+              validate: {
+                startWithSlash: (value) => value.startsWith('/') || 'Path must start with /',
+                noSpaces: (value) => !/\s/.test(value) || 'Path cannot contain spaces',
+              }
+            })}
+            onChange={(e) => e.target.value = e.target.value.replace(/[^a-zA-Z0-9/\-_]/g, '')}
+            data-testid="runnable-path-input" />
+          <FormErrorMessage>
+            {errors.path && errors.path.message}
+          </FormErrorMessage>
         </FormControl>
 
         {runnableIndex !== undefined && (
@@ -79,8 +95,8 @@ export const RunnableForm: React.FC<RunnableFormProps> = ({ runnableIndex, onClo
             <Box>
               <HStack justify="space-between" mb={2}>
                 <Text fontWeight="bold">Inputs</Text>
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   onClick={handleAddInput}
                   data-testid="add-input-button"
                 >
@@ -124,8 +140,8 @@ export const RunnableForm: React.FC<RunnableFormProps> = ({ runnableIndex, onClo
           </>
         )}
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           colorScheme="blue"
           data-testid="submit-runnable-button"
         >

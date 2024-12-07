@@ -19,7 +19,7 @@ export interface Input {
   order: number;
   required: boolean;
   description?: string;
-  defaultValue?: any;
+  defaultValue?: string | number | boolean;
   options?: Option[];
   min?: number;
   max?: number;
@@ -29,7 +29,7 @@ export interface Input {
   outputKey?: string;
   initialInputKey?: string;
   rows?: number;
-  value?: any;
+  value?: string | number | boolean;
 }
 
 export type InputType =

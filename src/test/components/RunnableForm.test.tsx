@@ -1,10 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { RunnableForm } from '../../components/RunnableForm';
 import { useSchemaStore } from '../../store/schemaStore';
 import { ChakraProvider } from '@chakra-ui/react';
 import React from 'react';
 import '@testing-library/jest-dom';
+import { Runnable } from '../../types/schema';
 
 // Mock the store
 vi.mock('../../store/schemaStore', () => ({
@@ -35,7 +36,7 @@ describe('RunnableForm', () => {
     removeRunnable: ReturnType<typeof vi.fn>;
     addInput: ReturnType<typeof vi.fn>;
     removeInput: ReturnType<typeof vi.fn>;
-    schema: { runnables: any[] };
+    schema: { runnables: Runnable[] };
   };
 
   beforeEach(() => {
@@ -49,17 +50,17 @@ describe('RunnableForm', () => {
         runnables: []
       }
     };
-    (useSchemaStore as any).mockImplementation(() => mockStore);
+    (useSchemaStore as unknown as Mock).mockImplementation(() => mockStore);
   });
 
   it('handles input addition and removal', async () => {
-    const existingRunnable = {
+    const existingRunnable:Runnable = {
       type: 'initial',
       path: '/test/path',
       inputs: [
         {
           name: 'input0',
-          type: 'string',
+          type: undefined,
           label: '',
           required: false,
           order: 0
@@ -114,7 +115,7 @@ describe('RunnableForm', () => {
 
   // Add separate test specifically for adding input
   it('adds input with correct parameters', async () => {
-    const existingRunnable = {
+    const existingRunnable:Runnable = {
       type: 'initial',
       path: '/test/path',
       inputs: []
@@ -172,7 +173,7 @@ describe('RunnableForm', () => {
   });
 
   it('handles runnable deletion', async () => {
-    const existingRunnable = {
+    const existingRunnable:Runnable = {
       type: 'initial',
       path: '/test/path',
       inputs: []
