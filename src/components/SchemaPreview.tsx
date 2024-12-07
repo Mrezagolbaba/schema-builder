@@ -168,6 +168,7 @@ export const SchemaPreview: React.FC = () => {
             colorScheme="blue"
             variant="outline"
             data-testid="export-button"
+            disabled={schema.runnables.length === 0}
           >
             Export
           </Button>
@@ -178,6 +179,7 @@ export const SchemaPreview: React.FC = () => {
             cursor="pointer"
             colorScheme="blue"
             variant="outline"
+            disabled={schema.runnables.length === 0}
             data-testid="import-button"
           >
             Import
@@ -190,7 +192,9 @@ export const SchemaPreview: React.FC = () => {
               style={{ display: 'none' }}
             />
           </Button>
-          <Button size="sm" onClick={onCopy} data-testid="copy-json-button">
+          <Button
+            disabled={schema.runnables.length === 0}
+           size="sm" onClick={onCopy} data-testid="copy-json-button">
             {hasCopied ? 'Copied!' : 'Copy JSON'}
           </Button>
         </HStack>
